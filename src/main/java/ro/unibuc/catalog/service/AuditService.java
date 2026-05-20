@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +27,9 @@ public final class AuditService {
     }
 
     public void log(String action) {
-        String line = action + "," + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + System.lineSeparator();
+        String timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String line = action + "," + timestamp + System.lineSeparator();
         try (FileWriter fw = new FileWriter(FILE, true)) {
             fw.write(line);
         } catch (IOException e) {
