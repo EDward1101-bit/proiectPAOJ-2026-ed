@@ -66,6 +66,35 @@ public class EnrollmentRepository {
         }
     }
 
+    public Enrollment findById(int id) {
+        String sql = "SELECT * FROM enrollments WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return map(rs);
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+        return null;
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM enrollments WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public boolean existsByStudent(int studentId) {
         String sql = "SELECT 1 FROM enrollments WHERE student_id = ? LIMIT 1";
         try (Connection conn = DatabaseConnection.get();

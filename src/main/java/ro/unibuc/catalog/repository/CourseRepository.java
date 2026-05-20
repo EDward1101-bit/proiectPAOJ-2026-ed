@@ -103,6 +103,34 @@ public class CourseRepository {
         }
     }
 
+    public boolean existsByDepartment(int departmentId) {
+        String sql = "SELECT 1 FROM courses WHERE department_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, departmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean existsByProfessor(int professorId) {
+        String sql = "SELECT 1 FROM courses WHERE professor_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, professorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Course map(ResultSet rs) throws SQLException {
         Integer profId = (Integer) rs.getObject("professor_id");
         return new Course(

@@ -98,6 +98,20 @@ public class StudentRepository {
         }
     }
 
+    public boolean existsByDepartment(int departmentId) {
+        String sql = "SELECT 1 FROM students WHERE department_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, departmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Student mapRow(ResultSet rs) throws SQLException {
         return new Student(
                 rs.getInt("id"),
