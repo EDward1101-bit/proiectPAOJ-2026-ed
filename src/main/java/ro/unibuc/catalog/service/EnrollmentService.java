@@ -49,6 +49,14 @@ public class EnrollmentService {
         return e;
     }
 
+    public void cancel(int enrollmentId) {
+        if (enrollments.findById(enrollmentId) == null) {
+            throw new EntityNotFoundException("Enrollment not found: " + enrollmentId);
+        }
+        enrollments.delete(enrollmentId);
+        audit.log("CANCEL_ENROLLMENT");
+    }
+
     public List<Enrollment> getByCourse(int courseId) {
         if (courses.findById(courseId) == null) {
             throw new EntityNotFoundException("Course not found: " + courseId);

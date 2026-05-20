@@ -64,6 +64,14 @@ public class GradeService {
         return grades.findByStudent(studentId);
     }
 
+    public void delete(int gradeId) {
+        if (grades.findById(gradeId) == null) {
+            throw new EntityNotFoundException("Grade not found: " + gradeId);
+        }
+        grades.delete(gradeId);
+        audit.log("DELETE_GRADE");
+    }
+
     public double computeWeightedAverage(int studentId, int courseId) {
         if (students.findById(studentId) == null) {
             throw new EntityNotFoundException("Student not found: " + studentId);

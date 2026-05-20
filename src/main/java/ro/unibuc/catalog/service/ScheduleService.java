@@ -53,6 +53,14 @@ public class ScheduleService {
         return s;
     }
 
+    public void delete(int scheduleId) {
+        if (schedule.findById(scheduleId) == null) {
+            throw new EntityNotFoundException("Schedule entry not found: " + scheduleId);
+        }
+        schedule.delete(scheduleId);
+        audit.log("DELETE_SCHEDULE_ENTRY");
+    }
+
     public List<ScheduleEntry> getByCourse(int courseId) {
         if (courses.findById(courseId) == null) {
             throw new EntityNotFoundException("Course not found: " + courseId);
