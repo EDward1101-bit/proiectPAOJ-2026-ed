@@ -73,4 +73,29 @@ public class ClassroomRepository {
         }
         return null;
     }
+
+    public void updateCapacity(int id, int newCapacity) {
+        String sql = "UPDATE classrooms SET capacity = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, newCapacity);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM classrooms WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

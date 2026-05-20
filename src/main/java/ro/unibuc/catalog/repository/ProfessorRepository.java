@@ -71,6 +71,45 @@ public class ProfessorRepository {
         return null;
     }
 
+    public void updateTitle(int id, String newTitle) {
+        String sql = "UPDATE professors SET title = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newTitle);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM professors WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean existsByDepartment(int departmentId) {
+        String sql = "SELECT 1 FROM professors WHERE department_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, departmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Professor map(ResultSet rs) throws SQLException {
         return new Professor(
                 rs.getInt("id"),

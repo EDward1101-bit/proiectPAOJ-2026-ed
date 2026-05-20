@@ -74,6 +74,49 @@ public class ScheduleRepository {
         return list;
     }
 
+    public ScheduleEntry findById(int id) {
+        String sql = "SELECT * FROM schedule_entries WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return map(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM schedule_entries WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean existsByClassroom(int classroomId) {
+        String sql = "SELECT 1 FROM schedule_entries WHERE classroom_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, classroomId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private ScheduleEntry map(ResultSet rs) throws SQLException {
         return new ScheduleEntry(
                 rs.getInt("id"),

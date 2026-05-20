@@ -58,6 +58,14 @@ public class AttendanceService {
         return a;
     }
 
+    public void delete(int attendanceId) {
+        if (attendances.findById(attendanceId) == null) {
+            throw new EntityNotFoundException("Attendance not found: " + attendanceId);
+        }
+        attendances.delete(attendanceId);
+        audit.log("DELETE_ATTENDANCE");
+    }
+
     public List<Attendance> getByCourseAndDate(int courseId, LocalDate date) {
         if (courses.findById(courseId) == null) {
             throw new EntityNotFoundException("Course not found: " + courseId);

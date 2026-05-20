@@ -77,6 +77,35 @@ public class AttendanceRepository {
         return list;
     }
 
+    public Attendance findById(int id) {
+        String sql = "SELECT * FROM attendances WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return map(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM attendances WHERE id = ?";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Attendance map(ResultSet rs) throws SQLException {
         return new Attendance(
                 rs.getInt("id"),

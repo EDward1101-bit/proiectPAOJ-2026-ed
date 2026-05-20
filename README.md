@@ -227,32 +227,57 @@ Reguli de business notabile (toate validate in `service`):
 
 ## Meniul aplicatiei
 
+Optiunile sunt grupate pe entitati. Cele cinci entitati principale (Departament,
+Student, Profesor, Curs, Sala) au toate cele patru operatiuni CRUD expuse in meniu;
+celelalte entitati (Inscriere, Nota, Prezenta, Orar) au Create + Read + Delete.
+
 ```
- 1. Adauga departament
- 2. Listeaza departamente
- 3. Adauga student
- 4. Listeaza studenti (sortat dupa nume)
- 5. Adauga profesor
- 6. Listeaza profesori
- 7. Adauga curs
- 8. Listeaza cursuri (sortat dupa cod)
- 9. Asigneaza profesor la curs
-10. Adauga sala
-11. Listeaza sali
-12. Inscrie student la curs
-13. Listeaza inscrieri pentru un curs
-14. Adauga nota
-15. Listeaza note pentru un student
-16. Calculeaza media ponderata student/curs
-17. Inregistreaza prezenta
-18. Listeaza prezente la curs intr-o zi
-19. Adauga intrare orar
-20. Orar pentru un curs
-21. Orar complet
-22. Sterge student
-23. Sterge curs
+-- Departamente --                     -- Inscrieri --
+ 1. Adauga departament                 21. Inscrie student la curs
+ 2. Listeaza departamente              22. Listeaza inscrieri pentru un curs
+ 3. Redenumeste departament            23. Anuleaza inscriere
+ 4. Sterge departament
+
+-- Studenti --                         -- Note --
+ 5. Adauga student                     24. Adauga nota
+ 6. Listeaza studenti (sortat)         25. Listeaza note pentru un student
+ 7. Schimba statut student             26. Calculeaza media ponderata
+ 8. Sterge student                     27. Sterge nota
+
+-- Profesori --                        -- Prezente --
+ 9. Adauga profesor                    28. Inregistreaza prezenta
+10. Listeaza profesori                 29. Listeaza prezente la curs intr-o zi
+11. Modifica titlu profesor            30. Sterge prezenta
+12. Sterge profesor
+
+-- Cursuri --                          -- Orar --
+13. Adauga curs                        31. Adauga intrare orar
+14. Listeaza cursuri (sortat)          32. Orar pentru un curs
+15. Asigneaza profesor la curs         33. Orar complet
+16. Sterge curs                        34. Sterge intrare orar
+
+-- Sali --
+17. Adauga sala
+18. Listeaza sali
+19. Modifica capacitate sala
+20. Sterge sala
+
  0. Iesire
 ```
+
+### Coverage CRUD
+
+| Entitate    | Create | Read | Update | Delete |
+|-------------|:---:|:---:|:---:|:---:|
+| Department  | ✅ | ✅ | ✅ rename       | ✅ (daca nu are referinte) |
+| Student     | ✅ | ✅ | ✅ status       | ✅ (daca nu e inscris) |
+| Professor   | ✅ | ✅ | ✅ titlu        | ✅ (daca nu preda) |
+| Course      | ✅ | ✅ | ✅ asign prof   | ✅ |
+| Classroom   | ✅ | ✅ | ✅ capacitate   | ✅ (daca nu apare in orar) |
+| Enrollment  | ✅ | ✅ | —              | ✅ |
+| Grade       | ✅ | ✅ | —              | ✅ |
+| Attendance  | ✅ | ✅ | —              | ✅ |
+| Schedule    | ✅ | ✅ | —              | ✅ |
 
 ## Exemple de utilizare
 
@@ -264,7 +289,7 @@ Nume departament: Matematica si Informatica
 Cod departament: MATE
 Creat: Department #1 | MATE - Matematica si Informatica
 
-> 5                              # Adauga profesor
+> 9                              # Adauga profesor
 Prenume: Ion
 Nume: Popescu
 Email: ion.popescu@unibuc.ro
@@ -272,7 +297,7 @@ Titlu: conf
 Id departament: 1
 Creat: Professor #1 | conf Ion Popescu | ion.popescu@unibuc.ro
 
-> 7                              # Adauga curs
+> 13                             # Adauga curs
 Nume curs: Programare avansata pe obiecte
 Cod curs: PAOJ
 Credite: 6
@@ -280,12 +305,12 @@ Tip: MANDATORY
 Id departament: 1
 Creat: Course #1 | PAOJ - Programare avansata pe obiecte | 6 credits | MANDATORY | no professor
 
-> 9                              # Asigneaza profesor la curs
+> 15                             # Asigneaza profesor la curs
 Id curs: 1
 Id profesor: 1
 OK.
 
-> 3                              # Adauga student
+> 5                              # Adauga student
 Prenume: Maria
 Nume: Ionescu
 Email: maria.ionescu@stud.unibuc.ro
@@ -293,7 +318,7 @@ Numar matricol: M2025-0042
 Id departament: 1
 Creat: Student #1 | Maria Ionescu (M2025-0042) | maria.ionescu@stud.unibuc.ro | ACTIVE
 
-> 12                             # Inscrie student la curs
+> 21                             # Inscrie student la curs
 Id student: 1
 Id curs: 1
 An academic: 2025-2026
@@ -303,7 +328,7 @@ Creat: Enrollment #1 | student 1 -> course 1 | 2025-2026
 ### Scenariu 2 - note si medie ponderata
 
 ```
-> 14                             # Adauga nota partial
+> 24                             # Adauga nota partial
 Id student: 1
 Id curs: 1
 Nota: 9.0
@@ -311,7 +336,7 @@ Pondere: 0.4
 Tip evaluare: midterm
 Creat: Grade #1 | student 1 | course 1 | 9.0 (w=0.4) | midterm
 
-> 14                             # Adauga nota examen final
+> 24                             # Adauga nota examen final
 Id student: 1
 Id curs: 1
 Nota: 8.0
@@ -319,7 +344,7 @@ Pondere: 0.6
 Tip evaluare: final
 Creat: Grade #2 | student 1 | course 1 | 8.0 (w=0.6) | final
 
-> 16                             # Calculeaza media ponderata
+> 26                             # Calculeaza media ponderata
 Id student: 1
 Id curs: 1
 Media: 8.40
@@ -328,13 +353,13 @@ Media: 8.40
 ### Scenariu 3 - orar
 
 ```
-> 10                             # Adauga sala
+> 17                             # Adauga sala
 Nume sala: A2
 Capacitate: 80
 Cladire: Pitar Mos
 Creat: Classroom #1 | Pitar Mos A2 | 80 seats
 
-> 19                             # Adauga intrare orar
+> 31                             # Adauga intrare orar
 Id curs: 1
 Id sala: 1
 Zi: MONDAY
@@ -342,7 +367,7 @@ Start: 10:00
 Stop: 12:00
 Creat: Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
 
-> 20                             # Orar pentru un curs
+> 32                             # Orar pentru un curs
 Id curs: 1
 Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
 ```
@@ -350,17 +375,25 @@ Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
 ### Scenariu 4 - validari care esueaza intentionat
 
 ```
-> 12                             # Inscriere duplicata
+> 21                             # Inscriere duplicata
 Id student: 1
 Id curs: 1
 An academic: 2025-2026
 [!] Student is already enrolled in this course
 
-> 22                             # Stergere student inscris
+> 8                              # Stergere student inscris
 Id student: 1
 [!] Student 1 is enrolled in courses and cannot be deleted
 
-> 14                             # Nota in afara intervalului
+> 12                             # Stergere profesor care preda
+Id profesor: 1
+[!] Professor 1 still teaches courses; reassign them first
+
+> 4                              # Stergere departament cu referinte
+Id departament: 1
+[!] Department 1 still has students, professors or courses attached
+
+> 24                             # Nota in afara intervalului
 Id student: 1
 Id curs: 1
 Nota: 12

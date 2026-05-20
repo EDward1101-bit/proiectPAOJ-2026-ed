@@ -2,8 +2,10 @@ package ro.unibuc.catalog.service;
 
 import ro.unibuc.catalog.exception.DeleteNotAllowedException;
 import ro.unibuc.catalog.exception.EntityNotFoundException;
+import ro.unibuc.catalog.exception.InvalidStateException;
 import ro.unibuc.catalog.exception.ValidationException;
 import ro.unibuc.catalog.model.Student;
+import ro.unibuc.catalog.model.StudentStatus;
 import ro.unibuc.catalog.repository.DepartmentRepository;
 import ro.unibuc.catalog.repository.EnrollmentRepository;
 import ro.unibuc.catalog.repository.StudentRepository;
@@ -80,5 +82,20 @@ public class StudentService {
         }
         students.delete(id);
         audit.log("DELETE_STUDENT");
+    }
+
+    public void updateStatus(int id, StudentStatus status) {
+        Student s = students.findById(id);
+        if (s == null) {
+            throw new EntityNotFoundException("Student not found: " + id);
+        }
+        if (status == null) {
+            throw new ValidationException("Status is required");
+        }
+        if (s.getStatus() == status) {
+            throw new InvalidStateException("Student already has status " + status);
+        }
+        students.updateStatus(id, status);
+        audit.log("UPDATE_STUDENT_STATUS");
     }
 }

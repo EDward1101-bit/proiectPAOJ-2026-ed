@@ -5,6 +5,7 @@ import ro.unibuc.catalog.model.AttendanceStatus;
 import ro.unibuc.catalog.model.Course;
 import ro.unibuc.catalog.model.CourseType;
 import ro.unibuc.catalog.model.Printable;
+import ro.unibuc.catalog.model.StudentStatus;
 import ro.unibuc.catalog.model.WeekDay;
 import ro.unibuc.catalog.repository.AttendanceRepository;
 import ro.unibuc.catalog.repository.ClassroomRepository;
@@ -57,11 +58,11 @@ public class Main {
 
         AuditService audit = AuditService.getInstance();
 
-        this.departmentService = new DepartmentService(departmentRepo, audit);
+        this.departmentService = new DepartmentService(departmentRepo, studentRepo, professorRepo, courseRepo, audit);
         this.studentService = new StudentService(studentRepo, departmentRepo, enrollmentRepo, audit);
-        this.professorService = new ProfessorService(professorRepo, departmentRepo, audit);
+        this.professorService = new ProfessorService(professorRepo, departmentRepo, courseRepo, audit);
         this.courseService = new CourseService(courseRepo, departmentRepo, professorRepo, audit);
-        this.classroomService = new ClassroomService(classroomRepo, audit);
+        this.classroomService = new ClassroomService(classroomRepo, scheduleRepo, audit);
         this.enrollmentService = new EnrollmentService(enrollmentRepo, studentRepo, courseRepo, audit);
         this.gradeService = new GradeService(gradeRepo, studentRepo, courseRepo, enrollmentRepo, audit);
         this.attendanceService = new AttendanceService(attendanceRepo, studentRepo, courseRepo, enrollmentRepo, audit);
@@ -92,29 +93,49 @@ public class Main {
     private void printMenu() {
         System.out.println();
         System.out.println("===== Catalog academic =====");
+        System.out.println("-- Departamente --");
         System.out.println(" 1. Adauga departament");
         System.out.println(" 2. Listeaza departamente");
-        System.out.println(" 3. Adauga student");
-        System.out.println(" 4. Listeaza studenti (sortat dupa nume)");
-        System.out.println(" 5. Adauga profesor");
-        System.out.println(" 6. Listeaza profesori");
-        System.out.println(" 7. Adauga curs");
-        System.out.println(" 8. Listeaza cursuri (sortat dupa cod)");
-        System.out.println(" 9. Asigneaza profesor la curs");
-        System.out.println("10. Adauga sala");
-        System.out.println("11. Listeaza sali");
-        System.out.println("12. Inscrie student la curs");
-        System.out.println("13. Listeaza inscrieri pentru un curs");
-        System.out.println("14. Adauga nota");
-        System.out.println("15. Listeaza note pentru un student");
-        System.out.println("16. Calculeaza media ponderata student/curs");
-        System.out.println("17. Inregistreaza prezenta");
-        System.out.println("18. Listeaza prezente la curs intr-o zi");
-        System.out.println("19. Adauga intrare orar");
-        System.out.println("20. Orar pentru un curs");
-        System.out.println("21. Orar complet");
-        System.out.println("22. Sterge student");
-        System.out.println("23. Sterge curs");
+        System.out.println(" 3. Redenumeste departament");
+        System.out.println(" 4. Sterge departament");
+        System.out.println("-- Studenti --");
+        System.out.println(" 5. Adauga student");
+        System.out.println(" 6. Listeaza studenti (sortat dupa nume)");
+        System.out.println(" 7. Schimba statut student");
+        System.out.println(" 8. Sterge student");
+        System.out.println("-- Profesori --");
+        System.out.println(" 9. Adauga profesor");
+        System.out.println("10. Listeaza profesori");
+        System.out.println("11. Modifica titlu profesor");
+        System.out.println("12. Sterge profesor");
+        System.out.println("-- Cursuri --");
+        System.out.println("13. Adauga curs");
+        System.out.println("14. Listeaza cursuri (sortat dupa cod)");
+        System.out.println("15. Asigneaza profesor la curs");
+        System.out.println("16. Sterge curs");
+        System.out.println("-- Sali --");
+        System.out.println("17. Adauga sala");
+        System.out.println("18. Listeaza sali");
+        System.out.println("19. Modifica capacitate sala");
+        System.out.println("20. Sterge sala");
+        System.out.println("-- Inscrieri --");
+        System.out.println("21. Inscrie student la curs");
+        System.out.println("22. Listeaza inscrieri pentru un curs");
+        System.out.println("23. Anuleaza inscriere");
+        System.out.println("-- Note --");
+        System.out.println("24. Adauga nota");
+        System.out.println("25. Listeaza note pentru un student");
+        System.out.println("26. Calculeaza media ponderata student/curs");
+        System.out.println("27. Sterge nota");
+        System.out.println("-- Prezente --");
+        System.out.println("28. Inregistreaza prezenta");
+        System.out.println("29. Listeaza prezente la curs intr-o zi");
+        System.out.println("30. Sterge prezenta");
+        System.out.println("-- Orar --");
+        System.out.println("31. Adauga intrare orar");
+        System.out.println("32. Orar pentru un curs");
+        System.out.println("33. Orar complet");
+        System.out.println("34. Sterge intrare orar");
         System.out.println(" 0. Iesire");
     }
 
@@ -122,30 +143,43 @@ public class Main {
         switch (choice) {
             case 1 -> addDepartment();
             case 2 -> listDepartments();
-            case 3 -> addStudent();
-            case 4 -> listStudents();
-            case 5 -> addProfessor();
-            case 6 -> listProfessors();
-            case 7 -> addCourse();
-            case 8 -> listCourses();
-            case 9 -> assignProfessor();
-            case 10 -> addClassroom();
-            case 11 -> listClassrooms();
-            case 12 -> enrollStudent();
-            case 13 -> listEnrollmentsByCourse();
-            case 14 -> addGrade();
-            case 15 -> listGradesByStudent();
-            case 16 -> computeAverage();
-            case 17 -> markAttendance();
-            case 18 -> listAttendance();
-            case 19 -> addScheduleEntry();
-            case 20 -> viewScheduleByCourse();
-            case 21 -> scheduleService.printFullSchedule();
-            case 22 -> deleteStudent();
-            case 23 -> deleteCourse();
+            case 3 -> renameDepartment();
+            case 4 -> deleteDepartment();
+            case 5 -> addStudent();
+            case 6 -> listStudents();
+            case 7 -> updateStudentStatus();
+            case 8 -> deleteStudent();
+            case 9 -> addProfessor();
+            case 10 -> listProfessors();
+            case 11 -> updateProfessorTitle();
+            case 12 -> deleteProfessor();
+            case 13 -> addCourse();
+            case 14 -> listCourses();
+            case 15 -> assignProfessor();
+            case 16 -> deleteCourse();
+            case 17 -> addClassroom();
+            case 18 -> listClassrooms();
+            case 19 -> updateClassroomCapacity();
+            case 20 -> deleteClassroom();
+            case 21 -> enrollStudent();
+            case 22 -> listEnrollmentsByCourse();
+            case 23 -> cancelEnrollment();
+            case 24 -> addGrade();
+            case 25 -> listGradesByStudent();
+            case 26 -> computeAverage();
+            case 27 -> deleteGrade();
+            case 28 -> markAttendance();
+            case 29 -> listAttendance();
+            case 30 -> deleteAttendance();
+            case 31 -> addScheduleEntry();
+            case 32 -> viewScheduleByCourse();
+            case 33 -> scheduleService.printFullSchedule();
+            case 34 -> deleteScheduleEntry();
             default -> System.out.println("Optiune invalida.");
         }
     }
+
+    // ------ Departamente ------
 
     private void addDepartment() {
         String name = readLine("Nume departament: ");
@@ -157,6 +191,21 @@ public class Main {
     private void listDepartments() {
         departmentService.getAll().forEach(d -> System.out.println(d.printDetails()));
     }
+
+    private void renameDepartment() {
+        int id = readInt("Id departament: ");
+        String name = readLine("Nume nou: ");
+        departmentService.rename(id, name);
+        System.out.println("Actualizat.");
+    }
+
+    private void deleteDepartment() {
+        int id = readInt("Id departament: ");
+        departmentService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Studenti ------
 
     private void addStudent() {
         String first = readLine("Prenume: ");
@@ -172,6 +221,21 @@ public class Main {
         studentService.getAllSortedByName().forEach(s -> System.out.println(s.printDetails()));
     }
 
+    private void updateStudentStatus() {
+        int id = readInt("Id student: ");
+        StudentStatus status = readEnum("Status nou (ACTIVE/GRADUATED/SUSPENDED/WITHDRAWN): ", StudentStatus.class);
+        studentService.updateStatus(id, status);
+        System.out.println("Actualizat.");
+    }
+
+    private void deleteStudent() {
+        int id = readInt("Id student: ");
+        studentService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Profesori ------
+
     private void addProfessor() {
         String first = readLine("Prenume: ");
         String last = readLine("Nume: ");
@@ -185,6 +249,21 @@ public class Main {
     private void listProfessors() {
         professorService.getAll().forEach(p -> System.out.println(p.printDetails()));
     }
+
+    private void updateProfessorTitle() {
+        int id = readInt("Id profesor: ");
+        String title = readLine("Titlu nou: ");
+        professorService.updateTitle(id, title);
+        System.out.println("Actualizat.");
+    }
+
+    private void deleteProfessor() {
+        int id = readInt("Id profesor: ");
+        professorService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Cursuri ------
 
     private void addCourse() {
         String name = readLine("Nume curs: ");
@@ -209,6 +288,14 @@ public class Main {
         System.out.println("OK.");
     }
 
+    private void deleteCourse() {
+        int id = readInt("Id curs: ");
+        courseService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Sali ------
+
     private void addClassroom() {
         String name = readLine("Nume sala: ");
         int capacity = readInt("Capacitate: ");
@@ -220,6 +307,21 @@ public class Main {
     private void listClassrooms() {
         classroomService.getAll().forEach(c -> System.out.println(c.printDetails()));
     }
+
+    private void updateClassroomCapacity() {
+        int id = readInt("Id sala: ");
+        int capacity = readInt("Capacitate noua: ");
+        classroomService.updateCapacity(id, capacity);
+        System.out.println("Actualizat.");
+    }
+
+    private void deleteClassroom() {
+        int id = readInt("Id sala: ");
+        classroomService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Inscrieri ------
 
     private void enrollStudent() {
         int sId = readInt("Id student: ");
@@ -233,6 +335,14 @@ public class Main {
         int cId = readInt("Id curs: ");
         enrollmentService.getByCourse(cId).forEach(e -> System.out.println(e.printDetails()));
     }
+
+    private void cancelEnrollment() {
+        int id = readInt("Id inscriere: ");
+        enrollmentService.cancel(id);
+        System.out.println("Anulat.");
+    }
+
+    // ------ Note ------
 
     private void addGrade() {
         int sId = readInt("Id student: ");
@@ -256,6 +366,14 @@ public class Main {
         System.out.printf("Media: %.2f%n", avg);
     }
 
+    private void deleteGrade() {
+        int id = readInt("Id nota: ");
+        gradeService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Prezente ------
+
     private void markAttendance() {
         int sId = readInt("Id student: ");
         int cId = readInt("Id curs: ");
@@ -270,6 +388,14 @@ public class Main {
         LocalDate date = LocalDate.parse(readLine("Data (YYYY-MM-DD): "));
         attendanceService.getByCourseAndDate(cId, date).forEach(a -> System.out.println(a.printDetails()));
     }
+
+    private void deleteAttendance() {
+        int id = readInt("Id prezenta: ");
+        attendanceService.delete(id);
+        System.out.println("Sters.");
+    }
+
+    // ------ Orar ------
 
     private void addScheduleEntry() {
         int cId = readInt("Id curs: ");
@@ -288,17 +414,13 @@ public class Main {
         }
     }
 
-    private void deleteStudent() {
-        int id = readInt("Id student: ");
-        studentService.delete(id);
+    private void deleteScheduleEntry() {
+        int id = readInt("Id intrare orar: ");
+        scheduleService.delete(id);
         System.out.println("Sters.");
     }
 
-    private void deleteCourse() {
-        int id = readInt("Id curs: ");
-        courseService.delete(id);
-        System.out.println("Sters.");
-    }
+    // ------ helpers I/O ------
 
     private String readLine(String prompt) {
         System.out.print(prompt);
