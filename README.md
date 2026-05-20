@@ -103,6 +103,94 @@ Reguli ON DELETE:
   (cand stergi un student/curs, datele aferente dispar)
 - `courses.professor_id` -> SET NULL daca profesorul e sters
 
+### Diagrama ER
+
+```mermaid
+erDiagram
+    DEPARTMENTS ||--o{ STUDENTS    : "are inscrisi"
+    DEPARTMENTS ||--o{ PROFESSORS  : "angajeaza"
+    DEPARTMENTS ||--o{ COURSES     : "ofera"
+    PROFESSORS  |o--o{ COURSES     : "preda"
+    STUDENTS    ||--o{ ENROLLMENTS : "se inscrie"
+    COURSES     ||--o{ ENROLLMENTS : "are inscrisi"
+    STUDENTS    ||--o{ GRADES      : "primeste"
+    COURSES     ||--o{ GRADES      : "evalueaza"
+    STUDENTS    ||--o{ ATTENDANCES : "marcheaza"
+    COURSES     ||--o{ ATTENDANCES : "are prezente"
+    COURSES     ||--o{ SCHEDULE_ENTRIES : "programat"
+    CLASSROOMS  ||--o{ SCHEDULE_ENTRIES : "gazduieste"
+
+    DEPARTMENTS {
+        int id PK
+        string name
+        string code UK
+    }
+    STUDENTS {
+        int id PK
+        string first_name
+        string last_name
+        string email
+        string registration_number UK
+        string status
+        int department_id FK
+    }
+    PROFESSORS {
+        int id PK
+        string first_name
+        string last_name
+        string email
+        string title
+        int department_id FK
+    }
+    COURSES {
+        int id PK
+        string name
+        string code UK
+        int credits
+        string type
+        int department_id FK
+        int professor_id FK "nullable"
+    }
+    CLASSROOMS {
+        int id PK
+        string name
+        int capacity
+        string building
+    }
+    ENROLLMENTS {
+        int id PK
+        int student_id FK
+        int course_id FK
+        string academic_year
+    }
+    GRADES {
+        int id PK
+        int student_id FK
+        int course_id FK
+        decimal value "1.0 - 10.0"
+        decimal weight "0 - 1"
+        string evaluation_type
+    }
+    ATTENDANCES {
+        int id PK
+        int student_id FK
+        int course_id FK
+        date attendance_date
+        string status
+    }
+    SCHEDULE_ENTRIES {
+        int id PK
+        int course_id FK
+        int classroom_id FK
+        string week_day
+        time start_hour
+        time end_hour
+    }
+```
+
+Notatii: `||--o{` = unu-la-multi obligatoriu, `|o--o{` = unu (optional)-la-multi
+(de ex. un curs poate sa nu aiba inca un profesor asignat).
+
 ## Modelul de date
 
 ```
