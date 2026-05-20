@@ -1,0 +1,17 @@
+services:
+  catalog-mysql:
+    image: mysql:8.0
+    container_name: catalog-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: catalog
+      MYSQL_USER: student
+      MYSQL_PASSWORD: student
+    volumes:
+      - catalog_data:/var/lib/mysql
+
+volumes:
+  catalog_data:

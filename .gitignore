@@ -1,0 +1,13 @@
+target/
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+audit.csv
+
+*.class
+*.log
+hs_err_pid*
+
+.claude/
