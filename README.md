@@ -1,58 +1,58 @@
-# Catalog academic - proiect PAOJ 2026
+# Academic Catalog - PAOJ 2026 Project
 
-Aplicatie de consola in Java pentru gestionarea unui catalog academic extins:
-departamente, studenti, profesori, cursuri, sali, inscrieri, note, prezente si orar.
-Datele sunt persistate intr-o baza de date MySQL prin JDBC.
+Console application in Java for managing an extended academic catalog:
+departments, students, professors, courses, classrooms, enrollments, grades, attendance, and schedules.
+Data is persisted in a MySQL database via JDBC.
 
-Proiectul acopera **Etapa I** (modelare OOP + colectii + meniu) si **Etapa II**
-(persistenta + audit) din cerintele cursului.
+The project covers **Stage I** (OOP modelling + collections + menu) and **Stage II**
+(persistence + audit) from the course requirements.
 
-## Cuprins
+## Table of Contents
 
-- [Cerinte](#cerinte)
-- [Pornire rapida](#pornire-rapida)
-- [Structura proiectului](#structura-proiectului)
-- [Schema bazei de date](#schema-bazei-de-date)
-- [Modelul de date](#modelul-de-date)
-- [Meniul aplicatiei](#meniul-aplicatiei)
-- [Exemple de utilizare](#exemple-de-utilizare)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Database Schema](#database-schema)
+- [Data Model](#data-model)
+- [Application Menu](#application-menu)
+- [Usage Examples](#usage-examples)
 - [Audit](#audit)
-- [Probleme frecvente](#probleme-frecvente)
+- [Troubleshooting](#troubleshooting)
 
-## Cerinte
+## Requirements
 
 - JDK 25
 - Maven 3.8+
-- Docker / Docker Desktop (pentru MySQL local)
+- Docker / Docker Desktop (for local MySQL)
 
-## Pornire rapida
+## Quick Start
 
-1. Porneste containerul MySQL:
+1. Start the MySQL container:
 
 ```
 docker compose up -d
 ```
 
-Serviciul `catalog-mysql` ruleaza pe portul **3307** (user `student`, parola `student`,
-baza de date `catalog`).
+The `catalog-mysql` service runs on port **3307** (user `student`, password `student`,
+database `catalog`).
 
-2. Compileaza si ruleaza aplicatia:
+2. Compile and run the application:
 
 ```
 mvn clean compile
 mvn exec:java
 ```
 
-La pornire, schema este creata automat din `src/main/resources/schema.sql` daca
-tabelele nu exista (CREATE TABLE IF NOT EXISTS).
+On startup, the schema is created automatically from `src/main/resources/schema.sql` if
+the tables do not exist (CREATE TABLE IF NOT EXISTS).
 
-3. La iesire alege optiunea `0` din meniu. Pentru oprirea bazei de date:
+3. To exit, choose option `0` from the menu. To stop the database:
 
 ```
 docker compose down
 ```
 
-## Structura proiectului
+## Project Structure
 
 ```
 PAOJ-proiect/
@@ -62,23 +62,23 @@ PAOJ-proiect/
 └── src/
     └── main/
         ├── java/ro/unibuc/catalog/
-        │   ├── Main.java                  - meniu interactiv
-        │   ├── config/                    - properties, conexiune JDBC, init schema
-        │   ├── exception/                 - exceptii custom (RuntimeException)
-        │   ├── model/                     - entitati, enums, interfata Printable
-        │   ├── repository/                - DAO-uri (PreparedStatement, try-with-resources)
+        │   ├── Main.java                  - interactive menu
+        │   ├── config/                    - properties, JDBC connection, schema init
+        │   ├── exception/                 - custom exceptions (RuntimeException)
+        │   ├── model/                     - entities, enums, Printable interface
+        │   ├── repository/                - DAOs (PreparedStatement, try-with-resources)
         │   └── service/                   - business logic + AuditService singleton
         └── resources/
-            ├── application.properties     - conexiune BD
-            └── schema.sql                 - DDL pentru tabele
+            ├── application.properties     - DB connection
+            └── schema.sql                 - DDL for tables
 ```
 
-Layere:
-- `repository` - acces direct la BD (SQL + JDBC), fara reguli de business
-- `service` - validari, reguli de business, audit, compun apeluri pe repos
-- `Main` - citeste input din consola si apeleaza serviciile
+Layers:
+- `repository` - direct DB access (SQL + JDBC), no business rules
+- `service` - validation, business rules, audit, composes repository calls
+- `Main` - reads console input and calls services
 
-## Schema bazei de date
+## Database Schema
 
 ```
 departments      (id PK, name, code UNIQUE)
@@ -98,27 +98,27 @@ attendances      (id PK, student_id FK, course_id FK, attendance_date, status)
 schedule_entries (id PK, course_id FK, classroom_id FK, week_day, start_hour, end_hour)
 ```
 
-Reguli ON DELETE:
-- `enrollments`, `grades`, `attendances` -> CASCADE pe `student_id` si `course_id`
-  (cand stergi un student/curs, datele aferente dispar)
-- `courses.professor_id` -> SET NULL daca profesorul e sters
+ON DELETE rules:
+- `enrollments`, `grades`, `attendances` -> CASCADE on `student_id` and `course_id`
+  (deleting a student/course removes related data)
+- `courses.professor_id` -> SET NULL when the professor is deleted
 
-### Diagrama ER
+### ER Diagram
 
 ```mermaid
 erDiagram
-    DEPARTMENTS ||--o{ STUDENTS    : "are inscrisi"
-    DEPARTMENTS ||--o{ PROFESSORS  : "angajeaza"
-    DEPARTMENTS ||--o{ COURSES     : "ofera"
-    PROFESSORS  |o--o{ COURSES     : "preda"
-    STUDENTS    ||--o{ ENROLLMENTS : "se inscrie"
-    COURSES     ||--o{ ENROLLMENTS : "are inscrisi"
-    STUDENTS    ||--o{ GRADES      : "primeste"
-    COURSES     ||--o{ GRADES      : "evalueaza"
-    STUDENTS    ||--o{ ATTENDANCES : "marcheaza"
-    COURSES     ||--o{ ATTENDANCES : "are prezente"
-    COURSES     ||--o{ SCHEDULE_ENTRIES : "programat"
-    CLASSROOMS  ||--o{ SCHEDULE_ENTRIES : "gazduieste"
+    DEPARTMENTS ||--o{ STUDENTS    : "has enrolled"
+    DEPARTMENTS ||--o{ PROFESSORS  : "employs"
+    DEPARTMENTS ||--o{ COURSES     : "offers"
+    PROFESSORS  |o--o{ COURSES     : "teaches"
+    STUDENTS    ||--o{ ENROLLMENTS : "enrolls in"
+    COURSES     ||--o{ ENROLLMENTS : "has enrolled"
+    STUDENTS    ||--o{ GRADES      : "receives"
+    COURSES     ||--o{ GRADES      : "evaluates"
+    STUDENTS    ||--o{ ATTENDANCES : "records"
+    COURSES     ||--o{ ATTENDANCES : "has attendance"
+    COURSES     ||--o{ SCHEDULE_ENTRIES : "scheduled"
+    CLASSROOMS  ||--o{ SCHEDULE_ENTRIES : "hosts"
 
     DEPARTMENTS {
         int id PK
@@ -188,10 +188,10 @@ erDiagram
     }
 ```
 
-Notatii: `||--o{` = unu-la-multi obligatoriu, `|o--o{` = unu (optional)-la-multi
-(de ex. un curs poate sa nu aiba inca un profesor asignat).
+Notation: `||--o{` = one-to-many mandatory, `|o--o{` = one (optional)-to-many
+(e.g. a course may not yet have an assigned professor).
 
-## Modelul de date
+## Data Model
 
 ```
 Person (abstract)
@@ -203,7 +203,7 @@ Course             (name, code, credits, type, departmentId, professorId?)
 Classroom          (name, capacity, building)
 Enrollment         (studentId -> courseId, academicYear)
 Grade              (studentId, courseId, value, weight, evaluationType)
-Attendance        (studentId, courseId, date, status)
+Attendance         (studentId, courseId, date, status)
 ScheduleEntry      (courseId, classroomId, weekDay, startHour, endHour)
 ```
 
@@ -213,199 +213,199 @@ Enums:
 - `AttendanceStatus`: `PRESENT`, `ABSENT`, `EXCUSED`
 - `WeekDay`: `MONDAY` ... `FRIDAY`
 
-Interfata `Printable` (cu `printDetails()`) e implementata de toate clasele entitate
-afisabile (Student, Professor, Department, Course, Classroom, Enrollment, Grade,
+The `Printable` interface (with `printDetails()`) is implemented by all displayable
+entity classes (Student, Professor, Department, Course, Classroom, Enrollment, Grade,
 Attendance, ScheduleEntry).
 
-Reguli de business notabile (toate validate in `service`):
-- email-ul trebuie sa contina `@`
-- nota e in `[1.0, 10.0]`, ponderea in `(0, 1]`
-- un student nu poate fi inscris de doua ori la acelasi curs (`DuplicateException`)
-- prezentele se inregistreaza doar pentru studenti inscrisi la cursul respectiv
-- nu poti sterge un student care are inscrieri (`DeleteNotAllowedException`)
-- ora de sfarsit a unei intrari in orar trebuie sa fie strict dupa cea de start
+Notable business rules (all validated in `service`):
+- email must contain `@`
+- grade is in `[1.0, 10.0]`, weight in `(0, 1]`
+- a student cannot be enrolled in the same course twice (`DuplicateException`)
+- attendance is only recorded for students enrolled in that course
+- a student with enrollments cannot be deleted (`DeleteNotAllowedException`)
+- the end time of a schedule entry must be strictly after the start time
 
-## Meniul aplicatiei
+## Application Menu
 
-Optiunile sunt grupate pe entitati. Cele cinci entitati principale (Departament,
-Student, Profesor, Curs, Sala) au toate cele patru operatiuni CRUD expuse in meniu;
-celelalte entitati (Inscriere, Nota, Prezenta, Orar) au Create + Read + Delete.
+Options are grouped by entity. The five main entities (Department, Student, Professor,
+Course, Classroom) expose all four CRUD operations in the menu; the other entities
+(Enrollment, Grade, Attendance, Schedule) have Create + Read + Delete.
 
 ```
--- Departamente --                     -- Inscrieri --
- 1. Adauga departament                 21. Inscrie student la curs
- 2. Listeaza departamente              22. Listeaza inscrieri pentru un curs
- 3. Redenumeste departament            23. Anuleaza inscriere
- 4. Sterge departament
+-- Departments --                     -- Enrollments --
+ 1. Add department                    21. Enroll student in course
+ 2. List departments                  22. List enrollments for a course
+ 3. Rename department                 23. Cancel enrollment
+ 4. Delete department
 
--- Studenti --                         -- Note --
- 5. Adauga student                     24. Adauga nota
- 6. Listeaza studenti (sortat)         25. Listeaza note pentru un student
- 7. Schimba statut student             26. Calculeaza media ponderata
- 8. Sterge student                     27. Sterge nota
+-- Students --                        -- Grades --
+ 5. Add student                       24. Add grade
+ 6. List students (sorted)            25. List grades for a student
+ 7. Update student status             26. Compute weighted average
+ 8. Delete student                    27. Delete grade
 
--- Profesori --                        -- Prezente --
- 9. Adauga profesor                    28. Inregistreaza prezenta
-10. Listeaza profesori                 29. Listeaza prezente la curs intr-o zi
-11. Modifica titlu profesor            30. Sterge prezenta
-12. Sterge profesor
+-- Professors --                      -- Attendance --
+ 9. Add professor                     28. Record attendance
+10. List professors                   29. List attendance for a course on a date
+11. Update professor title            30. Delete attendance
+12. Delete professor
 
--- Cursuri --                          -- Orar --
-13. Adauga curs                        31. Adauga intrare orar
-14. Listeaza cursuri (sortat)          32. Orar pentru un curs
-15. Asigneaza profesor la curs         33. Orar complet
-16. Sterge curs                        34. Sterge intrare orar
+-- Courses --                         -- Schedule --
+13. Add course                        31. Add schedule entry
+14. List courses (sorted)             32. Schedule for a course
+15. Assign professor to course        33. Full schedule
+16. Delete course                     34. Delete schedule entry
 
--- Sali --
-17. Adauga sala
-18. Listeaza sali
-19. Modifica capacitate sala
-20. Sterge sala
+-- Classrooms --
+17. Add classroom
+18. List classrooms
+19. Update classroom capacity
+20. Delete classroom
 
- 0. Iesire
+ 0. Exit
 ```
 
-### Coverage CRUD
+### CRUD Coverage
 
-| Entitate    | Create | Read | Update | Delete |
+| Entity      | Create | Read | Update | Delete |
 |-------------|:---:|:---:|:---:|:---:|
-| Department  | ✅ | ✅ | ✅ rename       | ✅ (daca nu are referinte) |
-| Student     | ✅ | ✅ | ✅ status       | ✅ (daca nu e inscris) |
-| Professor   | ✅ | ✅ | ✅ titlu        | ✅ (daca nu preda) |
-| Course      | ✅ | ✅ | ✅ asign prof   | ✅ |
-| Classroom   | ✅ | ✅ | ✅ capacitate   | ✅ (daca nu apare in orar) |
-| Enrollment  | ✅ | ✅ | —              | ✅ |
-| Grade       | ✅ | ✅ | —              | ✅ |
-| Attendance  | ✅ | ✅ | —              | ✅ |
-| Schedule    | ✅ | ✅ | —              | ✅ |
+| Department  | ✅ | ✅ | ✅ rename          | ✅ (if no references) |
+| Student     | ✅ | ✅ | ✅ status          | ✅ (if not enrolled) |
+| Professor   | ✅ | ✅ | ✅ title           | ✅ (if not teaching) |
+| Course      | ✅ | ✅ | ✅ assign prof     | ✅ |
+| Classroom   | ✅ | ✅ | ✅ capacity        | ✅ (if not in schedule) |
+| Enrollment  | ✅ | ✅ | —                 | ✅ |
+| Grade       | ✅ | ✅ | —                 | ✅ |
+| Attendance  | ✅ | ✅ | —                 | ✅ |
+| Schedule    | ✅ | ✅ | —                 | ✅ |
 
-## Exemple de utilizare
+## Usage Examples
 
-### Scenariu 1 - configurare initiala si inscriere
+### Scenario 1 - initial setup and enrollment
 
 ```
-> 1                              # Adauga departament
-Nume departament: Matematica si Informatica
-Cod departament: MATE
-Creat: Department #1 | MATE - Matematica si Informatica
+> 1                              # Add department
+Department name: Mathematics and Computer Science
+Department code: MATE
+Created: Department #1 | MATE - Mathematics and Computer Science
 
-> 9                              # Adauga profesor
-Prenume: Ion
-Nume: Popescu
+> 9                              # Add professor
+First name: Ion
+Last name: Popescu
 Email: ion.popescu@unibuc.ro
-Titlu: conf
-Id departament: 1
-Creat: Professor #1 | conf Ion Popescu | ion.popescu@unibuc.ro
+Title: conf
+Department id: 1
+Created: Professor #1 | conf Ion Popescu | ion.popescu@unibuc.ro
 
-> 13                             # Adauga curs
-Nume curs: Programare avansata pe obiecte
-Cod curs: PAOJ
-Credite: 6
-Tip: MANDATORY
-Id departament: 1
-Creat: Course #1 | PAOJ - Programare avansata pe obiecte | 6 credits | MANDATORY | no professor
+> 13                             # Add course
+Course name: Advanced Object-Oriented Programming
+Course code: PAOJ
+Credits: 6
+Type: MANDATORY
+Department id: 1
+Created: Course #1 | PAOJ - Advanced Object-Oriented Programming | 6 credits | MANDATORY | no professor
 
-> 15                             # Asigneaza profesor la curs
-Id curs: 1
-Id profesor: 1
+> 15                             # Assign professor to course
+Course id: 1
+Professor id: 1
 OK.
 
-> 5                              # Adauga student
-Prenume: Maria
-Nume: Ionescu
+> 5                              # Add student
+First name: Maria
+Last name: Ionescu
 Email: maria.ionescu@stud.unibuc.ro
-Numar matricol: M2025-0042
-Id departament: 1
-Creat: Student #1 | Maria Ionescu (M2025-0042) | maria.ionescu@stud.unibuc.ro | ACTIVE
+Registration number: M2025-0042
+Department id: 1
+Created: Student #1 | Maria Ionescu (M2025-0042) | maria.ionescu@stud.unibuc.ro | ACTIVE
 
-> 21                             # Inscrie student la curs
-Id student: 1
-Id curs: 1
-An academic: 2025-2026
-Creat: Enrollment #1 | student 1 -> course 1 | 2025-2026
+> 21                             # Enroll student in course
+Student id: 1
+Course id: 1
+Academic year: 2025-2026
+Created: Enrollment #1 | student 1 -> course 1 | 2025-2026
 ```
 
-### Scenariu 2 - note si medie ponderata
+### Scenario 2 - grades and weighted average
 
 ```
-> 24                             # Adauga nota partial
-Id student: 1
-Id curs: 1
-Nota: 9.0
-Pondere: 0.4
-Tip evaluare: midterm
-Creat: Grade #1 | student 1 | course 1 | 9.0 (w=0.4) | midterm
+> 24                             # Add midterm grade
+Student id: 1
+Course id: 1
+Grade: 9.0
+Weight: 0.4
+Evaluation type: midterm
+Created: Grade #1 | student 1 | course 1 | 9.0 (w=0.4) | midterm
 
-> 24                             # Adauga nota examen final
-Id student: 1
-Id curs: 1
-Nota: 8.0
-Pondere: 0.6
-Tip evaluare: final
-Creat: Grade #2 | student 1 | course 1 | 8.0 (w=0.6) | final
+> 24                             # Add final exam grade
+Student id: 1
+Course id: 1
+Grade: 8.0
+Weight: 0.6
+Evaluation type: final
+Created: Grade #2 | student 1 | course 1 | 8.0 (w=0.6) | final
 
-> 26                             # Calculeaza media ponderata
-Id student: 1
-Id curs: 1
-Media: 8.40
+> 26                             # Compute weighted average
+Student id: 1
+Course id: 1
+Average: 8.40
 ```
 
-### Scenariu 3 - orar
+### Scenario 3 - schedule
 
 ```
-> 17                             # Adauga sala
-Nume sala: A2
-Capacitate: 80
-Cladire: Pitar Mos
-Creat: Classroom #1 | Pitar Mos A2 | 80 seats
+> 17                             # Add classroom
+Classroom name: A2
+Capacity: 80
+Building: Pitar Mos
+Created: Classroom #1 | Pitar Mos A2 | 80 seats
 
-> 31                             # Adauga intrare orar
-Id curs: 1
-Id sala: 1
-Zi: MONDAY
+> 31                             # Add schedule entry
+Course id: 1
+Classroom id: 1
+Day: MONDAY
 Start: 10:00
-Stop: 12:00
-Creat: Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
+End: 12:00
+Created: Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
 
-> 32                             # Orar pentru un curs
-Id curs: 1
+> 32                             # Schedule for a course
+Course id: 1
 Schedule #1 | course 1 in classroom 1 | MONDAY 10:00-12:00
 ```
 
-### Scenariu 4 - validari care esueaza intentionat
+### Scenario 4 - intentional validation failures
 
 ```
-> 21                             # Inscriere duplicata
-Id student: 1
-Id curs: 1
-An academic: 2025-2026
+> 21                             # Duplicate enrollment
+Student id: 1
+Course id: 1
+Academic year: 2025-2026
 [!] Student is already enrolled in this course
 
-> 8                              # Stergere student inscris
-Id student: 1
+> 8                              # Delete enrolled student
+Student id: 1
 [!] Student 1 is enrolled in courses and cannot be deleted
 
-> 12                             # Stergere profesor care preda
-Id profesor: 1
+> 12                             # Delete professor who is teaching
+Professor id: 1
 [!] Professor 1 still teaches courses; reassign them first
 
-> 4                              # Stergere departament cu referinte
-Id departament: 1
+> 4                              # Delete department with references
+Department id: 1
 [!] Department 1 still has students, professors or courses attached
 
-> 24                             # Nota in afara intervalului
-Id student: 1
-Id curs: 1
-Nota: 12
-Pondere: 1
-Tip evaluare: bonus
+> 24                             # Grade out of range
+Student id: 1
+Course id: 1
+Grade: 12
+Weight: 1
+Evaluation type: bonus
 [!] Grade must be between 1.0 and 10.0
 ```
 
 ## Audit
 
-Toate actiunile relevante sunt scrise in `audit.csv` (in radacina proiectului) cu
-timestamp ISO-8601:
+All relevant actions are written to `audit.csv` (in the project root) with an
+ISO-8601 timestamp:
 
 ```
 ADD_DEPARTMENT,2026-04-02T14:23:11
@@ -416,28 +416,28 @@ ADD_GRADE,2026-04-02T14:30:08
 COMPUTE_AVERAGE,2026-04-02T14:31:22
 ```
 
-Fisierul `audit.csv` este in `.gitignore` (este artefact local).
+The `audit.csv` file is in `.gitignore` (it is a local artifact).
 
-## Probleme frecvente
+## Troubleshooting
 
-**Eroare `Communications link failure` la pornire**
-Containerul MySQL nu e pornit sau inca initializeaza. Verifica:
+**`Communications link failure` on startup**
+The MySQL container is not running or is still initializing. Check:
 ```
 docker compose ps
 docker compose logs catalog-mysql
 ```
 
-**Portul 3307 e ocupat**
-Schimba mapping-ul in `docker-compose.yml` (`"3308:3306"`) si actualizeaza
+**Port 3307 is in use**
+Change the mapping in `docker-compose.yml` (`"3308:3306"`) and update
 `db.url` in `src/main/resources/application.properties`.
 
-**`mvn` nu este recunoscut**
-Adauga Maven in PATH sau ruleaza via wrapper-ul IDE (IntelliJ are Run Configuration
-pe `Main.java`).
+**`mvn` is not recognized**
+Add Maven to PATH or run via the IDE wrapper (IntelliJ has a Run Configuration
+for `Main.java`).
 
-**Vrei sa resetezi baza de date**
+**Reset the database**
 ```
 docker compose down -v
 docker compose up -d
 ```
-Volumul `catalog_data` este sters si schema se recreeaza la prima rulare.
+The `catalog_data` volume is deleted and the schema is recreated on the next run.

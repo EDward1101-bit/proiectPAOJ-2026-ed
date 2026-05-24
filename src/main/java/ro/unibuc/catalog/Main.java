@@ -77,9 +77,9 @@ public class Main {
     private void run() {
         while (true) {
             printMenu();
-            int choice = readInt("Alege: ");
+            int choice = readInt("Choice: ");
             if (choice == 0) {
-                System.out.println("La revedere!");
+                System.out.println("Goodbye!");
                 return;
             }
             try {
@@ -92,51 +92,51 @@ public class Main {
 
     private void printMenu() {
         System.out.println();
-        System.out.println("===== Catalog academic =====");
-        System.out.println("-- Departamente --");
-        System.out.println(" 1. Adauga departament");
-        System.out.println(" 2. Listeaza departamente");
-        System.out.println(" 3. Redenumeste departament");
-        System.out.println(" 4. Sterge departament");
-        System.out.println("-- Studenti --");
-        System.out.println(" 5. Adauga student");
-        System.out.println(" 6. Listeaza studenti (sortat dupa nume)");
-        System.out.println(" 7. Schimba statut student");
-        System.out.println(" 8. Sterge student");
-        System.out.println("-- Profesori --");
-        System.out.println(" 9. Adauga profesor");
-        System.out.println("10. Listeaza profesori");
-        System.out.println("11. Modifica titlu profesor");
-        System.out.println("12. Sterge profesor");
-        System.out.println("-- Cursuri --");
-        System.out.println("13. Adauga curs");
-        System.out.println("14. Listeaza cursuri (sortat dupa cod)");
-        System.out.println("15. Asigneaza profesor la curs");
-        System.out.println("16. Sterge curs");
-        System.out.println("-- Sali --");
-        System.out.println("17. Adauga sala");
-        System.out.println("18. Listeaza sali");
-        System.out.println("19. Modifica capacitate sala");
-        System.out.println("20. Sterge sala");
-        System.out.println("-- Inscrieri --");
-        System.out.println("21. Inscrie student la curs");
-        System.out.println("22. Listeaza inscrieri pentru un curs");
-        System.out.println("23. Anuleaza inscriere");
-        System.out.println("-- Note --");
-        System.out.println("24. Adauga nota");
-        System.out.println("25. Listeaza note pentru un student");
-        System.out.println("26. Calculeaza media ponderata student/curs");
-        System.out.println("27. Sterge nota");
-        System.out.println("-- Prezente --");
-        System.out.println("28. Inregistreaza prezenta");
-        System.out.println("29. Listeaza prezente la curs intr-o zi");
-        System.out.println("30. Sterge prezenta");
-        System.out.println("-- Orar --");
-        System.out.println("31. Adauga intrare orar");
-        System.out.println("32. Orar pentru un curs");
-        System.out.println("33. Orar complet");
-        System.out.println("34. Sterge intrare orar");
-        System.out.println(" 0. Iesire");
+        System.out.println("===== Academic Catalog =====");
+        System.out.println("-- Departments --");
+        System.out.println(" 1. Add department");
+        System.out.println(" 2. List departments");
+        System.out.println(" 3. Rename department");
+        System.out.println(" 4. Delete department");
+        System.out.println("-- Students --");
+        System.out.println(" 5. Add student");
+        System.out.println(" 6. List students (sorted by name)");
+        System.out.println(" 7. Update student status");
+        System.out.println(" 8. Delete student");
+        System.out.println("-- Professors --");
+        System.out.println(" 9. Add professor");
+        System.out.println("10. List professors");
+        System.out.println("11. Update professor title");
+        System.out.println("12. Delete professor");
+        System.out.println("-- Courses --");
+        System.out.println("13. Add course");
+        System.out.println("14. List courses (sorted by code)");
+        System.out.println("15. Assign professor to course");
+        System.out.println("16. Delete course");
+        System.out.println("-- Classrooms --");
+        System.out.println("17. Add classroom");
+        System.out.println("18. List classrooms");
+        System.out.println("19. Update classroom capacity");
+        System.out.println("20. Delete classroom");
+        System.out.println("-- Enrollments --");
+        System.out.println("21. Enroll student in course");
+        System.out.println("22. List enrollments for a course");
+        System.out.println("23. Cancel enrollment");
+        System.out.println("-- Grades --");
+        System.out.println("24. Add grade");
+        System.out.println("25. List grades for a student");
+        System.out.println("26. Compute weighted average (student/course)");
+        System.out.println("27. Delete grade");
+        System.out.println("-- Attendance --");
+        System.out.println("28. Record attendance");
+        System.out.println("29. List attendance for a course on a date");
+        System.out.println("30. Delete attendance");
+        System.out.println("-- Schedule --");
+        System.out.println("31. Add schedule entry");
+        System.out.println("32. Schedule for a course");
+        System.out.println("33. Full schedule");
+        System.out.println("34. Delete schedule entry");
+        System.out.println(" 0. Exit");
     }
 
     private void handle(int choice) {
@@ -175,17 +175,17 @@ public class Main {
             case 32 -> viewScheduleByCourse();
             case 33 -> scheduleService.printFullSchedule();
             case 34 -> deleteScheduleEntry();
-            default -> System.out.println("Optiune invalida.");
+            default -> System.out.println("Invalid option.");
         }
     }
 
-    // ------ Departamente ------
+    // ------ Departments ------
 
     private void addDepartment() {
-        String name = readLine("Nume departament: ");
-        String code = readLine("Cod departament: ");
+        String name = readLine("Department name: ");
+        String code = readLine("Department code: ");
         var d = departmentService.add(name, code);
-        System.out.println("Creat: " + d.printDetails());
+        System.out.println("Created: " + d.printDetails());
     }
 
     private void listDepartments() {
@@ -193,28 +193,28 @@ public class Main {
     }
 
     private void renameDepartment() {
-        int id = readInt("Id departament: ");
-        String name = readLine("Nume nou: ");
+        int id = readInt("Department id: ");
+        String name = readLine("New name: ");
         departmentService.rename(id, name);
-        System.out.println("Actualizat.");
+        System.out.println("Updated.");
     }
 
     private void deleteDepartment() {
-        int id = readInt("Id departament: ");
+        int id = readInt("Department id: ");
         departmentService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Studenti ------
+    // ------ Students ------
 
     private void addStudent() {
-        String first = readLine("Prenume: ");
-        String last = readLine("Nume: ");
+        String first = readLine("First name: ");
+        String last = readLine("Last name: ");
         String email = readLine("Email: ");
-        String reg = readLine("Numar matricol: ");
-        int dep = readInt("Id departament: ");
+        String reg = readLine("Registration number: ");
+        int dep = readInt("Department id: ");
         var s = studentService.add(first, last, email, reg, dep);
-        System.out.println("Creat: " + s.printDetails());
+        System.out.println("Created: " + s.printDetails());
     }
 
     private void listStudents() {
@@ -222,28 +222,28 @@ public class Main {
     }
 
     private void updateStudentStatus() {
-        int id = readInt("Id student: ");
-        StudentStatus status = readEnum("Status nou (ACTIVE/GRADUATED/SUSPENDED/WITHDRAWN): ", StudentStatus.class);
+        int id = readInt("Student id: ");
+        StudentStatus status = readEnum("New status (ACTIVE/GRADUATED/SUSPENDED/WITHDRAWN): ", StudentStatus.class);
         studentService.updateStatus(id, status);
-        System.out.println("Actualizat.");
+        System.out.println("Updated.");
     }
 
     private void deleteStudent() {
-        int id = readInt("Id student: ");
+        int id = readInt("Student id: ");
         studentService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Profesori ------
+    // ------ Professors ------
 
     private void addProfessor() {
-        String first = readLine("Prenume: ");
-        String last = readLine("Nume: ");
+        String first = readLine("First name: ");
+        String last = readLine("Last name: ");
         String email = readLine("Email: ");
-        String title = readLine("Titlu (lector/conf/prof): ");
-        int dep = readInt("Id departament: ");
+        String title = readLine("Title (lector/conf/prof): ");
+        int dep = readInt("Department id: ");
         var p = professorService.add(first, last, email, title, dep);
-        System.out.println("Creat: " + p.printDetails());
+        System.out.println("Created: " + p.printDetails());
     }
 
     private void listProfessors() {
@@ -251,28 +251,28 @@ public class Main {
     }
 
     private void updateProfessorTitle() {
-        int id = readInt("Id profesor: ");
-        String title = readLine("Titlu nou: ");
+        int id = readInt("Professor id: ");
+        String title = readLine("New title: ");
         professorService.updateTitle(id, title);
-        System.out.println("Actualizat.");
+        System.out.println("Updated.");
     }
 
     private void deleteProfessor() {
-        int id = readInt("Id profesor: ");
+        int id = readInt("Professor id: ");
         professorService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Cursuri ------
+    // ------ Courses ------
 
     private void addCourse() {
-        String name = readLine("Nume curs: ");
-        String code = readLine("Cod curs: ");
-        int credits = readInt("Credite: ");
-        CourseType type = readEnum("Tip (MANDATORY/OPTIONAL/ELECTIVE): ", CourseType.class);
-        int dep = readInt("Id departament: ");
+        String name = readLine("Course name: ");
+        String code = readLine("Course code: ");
+        int credits = readInt("Credits: ");
+        CourseType type = readEnum("Type (MANDATORY/OPTIONAL/ELECTIVE): ", CourseType.class);
+        int dep = readInt("Department id: ");
         var c = courseService.add(name, code, credits, type, dep);
-        System.out.println("Creat: " + c.printDetails());
+        System.out.println("Created: " + c.printDetails());
     }
 
     private void listCourses() {
@@ -282,26 +282,26 @@ public class Main {
     }
 
     private void assignProfessor() {
-        int courseId = readInt("Id curs: ");
-        int profId = readInt("Id profesor: ");
+        int courseId = readInt("Course id: ");
+        int profId = readInt("Professor id: ");
         courseService.assignProfessor(courseId, profId);
         System.out.println("OK.");
     }
 
     private void deleteCourse() {
-        int id = readInt("Id curs: ");
+        int id = readInt("Course id: ");
         courseService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Sali ------
+    // ------ Classrooms ------
 
     private void addClassroom() {
-        String name = readLine("Nume sala: ");
-        int capacity = readInt("Capacitate: ");
-        String building = readLine("Cladire: ");
+        String name = readLine("Classroom name: ");
+        int capacity = readInt("Capacity: ");
+        String building = readLine("Building: ");
         var c = classroomService.add(name, capacity, building);
-        System.out.println("Creat: " + c.printDetails());
+        System.out.println("Created: " + c.printDetails());
     }
 
     private void listClassrooms() {
@@ -309,115 +309,115 @@ public class Main {
     }
 
     private void updateClassroomCapacity() {
-        int id = readInt("Id sala: ");
-        int capacity = readInt("Capacitate noua: ");
+        int id = readInt("Classroom id: ");
+        int capacity = readInt("New capacity: ");
         classroomService.updateCapacity(id, capacity);
-        System.out.println("Actualizat.");
+        System.out.println("Updated.");
     }
 
     private void deleteClassroom() {
-        int id = readInt("Id sala: ");
+        int id = readInt("Classroom id: ");
         classroomService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Inscrieri ------
+    // ------ Enrollments ------
 
     private void enrollStudent() {
-        int sId = readInt("Id student: ");
-        int cId = readInt("Id curs: ");
-        String year = readLine("An academic (ex: 2025-2026): ");
+        int sId = readInt("Student id: ");
+        int cId = readInt("Course id: ");
+        String year = readLine("Academic year (e.g. 2025-2026): ");
         var e = enrollmentService.enroll(sId, cId, year);
-        System.out.println("Creat: " + e.printDetails());
+        System.out.println("Created: " + e.printDetails());
     }
 
     private void listEnrollmentsByCourse() {
-        int cId = readInt("Id curs: ");
+        int cId = readInt("Course id: ");
         enrollmentService.getByCourse(cId).forEach(e -> System.out.println(e.printDetails()));
     }
 
     private void cancelEnrollment() {
-        int id = readInt("Id inscriere: ");
+        int id = readInt("Enrollment id: ");
         enrollmentService.cancel(id);
-        System.out.println("Anulat.");
+        System.out.println("Cancelled.");
     }
 
-    // ------ Note ------
+    // ------ Grades ------
 
     private void addGrade() {
-        int sId = readInt("Id student: ");
-        int cId = readInt("Id curs: ");
-        double value = readDouble("Nota (1.0 - 10.0): ");
-        double weight = readDouble("Pondere (0 - 1]: ");
-        String type = readLine("Tip evaluare (exam/quiz/lab/...): ");
+        int sId = readInt("Student id: ");
+        int cId = readInt("Course id: ");
+        double value = readDouble("Grade (1.0 - 10.0): ");
+        double weight = readDouble("Weight (0 - 1]: ");
+        String type = readLine("Evaluation type (exam/quiz/lab/...): ");
         var g = gradeService.add(sId, cId, value, weight, type);
-        System.out.println("Creat: " + g.printDetails());
+        System.out.println("Created: " + g.printDetails());
     }
 
     private void listGradesByStudent() {
-        int sId = readInt("Id student: ");
+        int sId = readInt("Student id: ");
         gradeService.getByStudent(sId).forEach(g -> System.out.println(g.printDetails()));
     }
 
     private void computeAverage() {
-        int sId = readInt("Id student: ");
-        int cId = readInt("Id curs: ");
+        int sId = readInt("Student id: ");
+        int cId = readInt("Course id: ");
         double avg = gradeService.computeWeightedAverage(sId, cId);
-        System.out.printf("Media: %.2f%n", avg);
+        System.out.printf("Average: %.2f%n", avg);
     }
 
     private void deleteGrade() {
-        int id = readInt("Id nota: ");
+        int id = readInt("Grade id: ");
         gradeService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Prezente ------
+    // ------ Attendance ------
 
     private void markAttendance() {
-        int sId = readInt("Id student: ");
-        int cId = readInt("Id curs: ");
-        LocalDate date = LocalDate.parse(readLine("Data (YYYY-MM-DD): "));
+        int sId = readInt("Student id: ");
+        int cId = readInt("Course id: ");
+        LocalDate date = LocalDate.parse(readLine("Date (YYYY-MM-DD): "));
         AttendanceStatus status = readEnum("Status (PRESENT/ABSENT/EXCUSED): ", AttendanceStatus.class);
         var a = attendanceService.mark(sId, cId, date, status);
-        System.out.println("Creat: " + a.printDetails());
+        System.out.println("Created: " + a.printDetails());
     }
 
     private void listAttendance() {
-        int cId = readInt("Id curs: ");
-        LocalDate date = LocalDate.parse(readLine("Data (YYYY-MM-DD): "));
+        int cId = readInt("Course id: ");
+        LocalDate date = LocalDate.parse(readLine("Date (YYYY-MM-DD): "));
         attendanceService.getByCourseAndDate(cId, date).forEach(a -> System.out.println(a.printDetails()));
     }
 
     private void deleteAttendance() {
-        int id = readInt("Id prezenta: ");
+        int id = readInt("Attendance id: ");
         attendanceService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
-    // ------ Orar ------
+    // ------ Schedule ------
 
     private void addScheduleEntry() {
-        int cId = readInt("Id curs: ");
-        int rId = readInt("Id sala: ");
-        WeekDay day = readEnum("Zi (MONDAY..FRIDAY): ", WeekDay.class);
+        int cId = readInt("Course id: ");
+        int rId = readInt("Classroom id: ");
+        WeekDay day = readEnum("Day (MONDAY..FRIDAY): ", WeekDay.class);
         LocalTime start = LocalTime.parse(readLine("Start (HH:MM): "));
-        LocalTime end = LocalTime.parse(readLine("Stop (HH:MM): "));
+        LocalTime end = LocalTime.parse(readLine("End (HH:MM): "));
         var s = scheduleService.add(cId, rId, day, start, end);
-        System.out.println("Creat: " + s.printDetails());
+        System.out.println("Created: " + s.printDetails());
     }
 
     private void viewScheduleByCourse() {
-        int cId = readInt("Id curs: ");
+        int cId = readInt("Course id: ");
         for (Printable p : scheduleService.getByCourse(cId)) {
             System.out.println(p.printDetails());
         }
     }
 
     private void deleteScheduleEntry() {
-        int id = readInt("Id intrare orar: ");
+        int id = readInt("Schedule entry id: ");
         scheduleService.delete(id);
-        System.out.println("Sters.");
+        System.out.println("Deleted.");
     }
 
     // ------ helpers I/O ------
@@ -432,7 +432,7 @@ public class Main {
             try {
                 return Integer.parseInt(readLine(prompt).trim());
             } catch (NumberFormatException e) {
-                System.out.println("Valoare numerica invalida, incearca din nou.");
+                System.out.println("Invalid numeric value, please try again.");
             }
         }
     }
@@ -442,7 +442,7 @@ public class Main {
             try {
                 return Double.parseDouble(readLine(prompt).trim());
             } catch (NumberFormatException e) {
-                System.out.println("Valoare numerica invalida, incearca din nou.");
+                System.out.println("Invalid numeric value, please try again.");
             }
         }
     }
@@ -452,7 +452,7 @@ public class Main {
             try {
                 return Enum.valueOf(type, readLine(prompt).trim().toUpperCase());
             } catch (IllegalArgumentException e) {
-                System.out.println("Valoare invalida, incearca din nou.");
+                System.out.println("Invalid value, please try again.");
             }
         }
     }
