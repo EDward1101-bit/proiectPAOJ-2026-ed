@@ -4,8 +4,9 @@ Console application in Java for managing an extended academic catalog:
 departments, students, professors, courses, classrooms, enrollments, grades, attendance, and schedules.
 Data is persisted in a MySQL database via JDBC.
 
-The project covers **Stage I** (OOP modelling + collections + menu) and **Stage II**
-(persistence + audit) from the course requirements.
+The project covers **Stage I** (OOP modelling + collections + menu), **Stage II**
+(persistence + audit) and **Stage III** (bonus: logging, Streams reports,
+CSV/JSON export, and unit tests) from the course requirements.
 
 ## Table of Contents
 
@@ -17,6 +18,8 @@ The project covers **Stage I** (OOP modelling + collections + menu) and **Stage 
 - [Application Menu](#application-menu)
 - [Usage Examples](#usage-examples)
 - [Audit](#audit)
+- [Stage III - Bonus Features](#stage-iii---bonus-features)
+- [Running the Tests](#running-the-tests)
 - [Troubleshooting](#troubleshooting)
 
 ## Requirements
@@ -60,17 +63,19 @@ PAOJ-proiect/
 ├── pom.xml
 ├── README.md
 └── src/
-    └── main/
-        ├── java/ro/unibuc/catalog/
-        │   ├── Main.java                  - interactive menu
-        │   ├── config/                    - properties, JDBC connection, schema init
-        │   ├── exception/                 - custom exceptions (RuntimeException)
-        │   ├── model/                     - entities, enums, Printable interface
-        │   ├── repository/                - DAOs (PreparedStatement, try-with-resources)
-        │   └── service/                   - business logic + AuditService singleton
-        └── resources/
-            ├── application.properties     - DB connection
-            └── schema.sql                 - DDL for tables
+    ├── main/
+    │   ├── java/ro/unibuc/catalog/
+    │   │   ├── Main.java                  - interactive menu
+    │   │   ├── config/                    - properties, JDBC connection, schema init, AppLogger
+    │   │   ├── exception/                 - custom exceptions (RuntimeException)
+    │   │   ├── model/                     - entities, enums, Printable interface
+    │   │   ├── repository/                - DAOs (PreparedStatement, try-with-resources)
+    │   │   └── service/                   - business logic, AuditService, ReportService, ExportService
+    │   └── resources/
+    │       ├── application.properties     - DB connection
+    │       ├── logging.properties         - java.util.logging configuration
+    │       └── schema.sql                 - DDL for tables
+    └── test/java/ro/unibuc/catalog/       - JUnit 5 + Mockito service tests
 ```
 
 Layers:
@@ -256,11 +261,17 @@ Course, Classroom) expose all four CRUD operations in the menu; the other entiti
 15. Assign professor to course        33. Full schedule
 16. Delete course                     34. Delete schedule entry
 
--- Classrooms --
-17. Add classroom
-18. List classrooms
-19. Update classroom capacity
-20. Delete classroom
+-- Classrooms --                      -- Reports (Streams) --
+17. Add classroom                     35. Students by status
+18. List classrooms                   36. Courses per department
+19. Update classroom capacity         37. Average credits by course type
+20. Delete classroom                  38. Courses without a professor
+                                      39. Overall grade average
+                                      40. Top students by weighted average
+
+                                      -- Export --
+                                      41. Export students to CSV
+                                      42. Export statistics to JSON
 
  0. Exit
 ```
@@ -417,6 +428,69 @@ COMPUTE_AVERAGE,2026-04-02T14:31:22
 ```
 
 The `audit.csv` file is in `.gitignore` (it is a local artifact).
+
+## Stage III - Bonus Features
+
+Stage III adds four optional features on top of the mandatory stages (the course
+requires at least two):
+
+### 1. Logging (`java.util.logging`)
+
+`config/AppLogger` configures the logging subsystem once from
+`src/main/resources/logging.properties`. A `FileHandler` appends the full `INFO`
+trail to `catalog.log` in the project root, while the console handler is limited
+to `WARNING` and above so it does not interfere with the interactive menu.
+`catalog.log` is ignored by git (`*.log`).
+
+### 2. Reports with the Streams API
+
+`service/ReportService` computes six in-memory analytics, each built around a
+stream pipeline (`groupingBy`, `counting`, `averagingInt`, `filter`, `sorted`,
+`mapToDouble`):
+
+| Menu | Report | Stream operation |
+|---|---|---|
+| 35 | Students by status            | `groupingBy` + `counting` |
+| 36 | Courses per department        | `groupingBy(code)` + `counting` |
+| 37 | Average credits by course type| `groupingBy` + `averagingInt` |
+| 38 | Courses without a professor   | `filter` + `sorted` |
+| 39 | Overall grade average         | `mapToDouble` + `average` |
+| 40 | Top students by weighted average | `groupingBy` + reduce + `sorted` + `limit` |
+
+### 3. CSV / JSON export
+
+`service/ExportService` serializes reports to the `exports/` directory (ignored
+by git):
+
+- **41 - Export students to CSV** -> `exports/students.csv` (RFC 4180 escaping)
+- **42 - Export statistics to JSON** -> `exports/statistics.json` (dependency-free
+  JSON writer with proper string escaping), containing the overall average,
+  student counts by status, courses per department, and the top 5 students.
+
+### 4. Unit tests (JUnit 5 + Mockito)
+
+13 tests under `src/test/java` cover `StudentService`, `GradeService` and
+`ReportService` with mocked repositories (no database needed). See
+[Running the Tests](#running-the-tests).
+
+### 5. Documentation
+
+This README documents setup, the database schema (with ER diagram), the full
+menu, worked examples, and the bonus features.
+
+## Running the Tests
+
+```
+mvn test
+```
+
+The tests use JUnit Jupiter and Mockito (declared with `test` scope in `pom.xml`)
+and run entirely in memory by mocking the repository layer, so a database
+connection is **not** required:
+
+```
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+```
 
 ## Troubleshooting
 
