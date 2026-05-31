@@ -8,9 +8,10 @@ import ro.unibuc.catalog.repository.CourseRepository;
 import ro.unibuc.catalog.repository.EnrollmentRepository;
 import ro.unibuc.catalog.repository.StudentRepository;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class EnrollmentService {
 
@@ -61,15 +62,17 @@ public class EnrollmentService {
         if (courses.findById(courseId) == null) {
             throw new EntityNotFoundException("Course not found: " + courseId);
         }
-        List<Enrollment> list = enrollments.findByCourse(courseId);
-
-        Set<Integer> uniqueStudents = new HashSet<>();
-        for (Enrollment e : list) {
-            uniqueStudents.add(e.getStudentId());
-        }
-        System.out.println("Unique students enrolled: " + uniqueStudents.size());
-
         audit.log("LIST_ENROLLMENTS_BY_COURSE");
-        return list;
+        return enrollments.findByCourse(courseId);
+    }
+
+    /** Distinct student ids enrolled in a course, returned as a sorted set. */
+    public Set<Integer> distinctStudentIds(int courseId) {
+        if (courses.findById(courseId) == null) {
+            throw new EntityNotFoundException("Course not found: " + courseId);
+        }
+        return enrollments.findByCourse(courseId).stream()
+                .map(Enrollment::getStudentId)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

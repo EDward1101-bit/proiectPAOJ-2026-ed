@@ -189,7 +189,7 @@ public class Main {
             case 30 -> deleteAttendance();
             case 31 -> addScheduleEntry();
             case 32 -> viewScheduleByCourse();
-            case 33 -> scheduleService.printFullSchedule();
+            case 33 -> scheduleService.formatFullSchedule().forEach(System.out::println);
             case 34 -> deleteScheduleEntry();
             case 35 -> reportStudentsByStatus();
             case 36 -> reportCoursesPerDepartment();
@@ -358,6 +358,7 @@ public class Main {
     private void listEnrollmentsByCourse() {
         int cId = readInt("Course id: ");
         enrollmentService.getByCourse(cId).forEach(e -> System.out.println(e.printDetails()));
+        System.out.println("Unique students enrolled: " + enrollmentService.distinctStudentIds(cId).size());
     }
 
     private void cancelEnrollment() {

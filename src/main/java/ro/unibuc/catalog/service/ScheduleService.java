@@ -11,6 +11,7 @@ import ro.unibuc.catalog.repository.CourseRepository;
 import ro.unibuc.catalog.repository.ScheduleRepository;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,8 @@ public class ScheduleService {
         return schedule.findByCourse(courseId);
     }
 
-    public void printFullSchedule() {
+    /** Builds the full weekly schedule as human-readable lines, resolving course labels. */
+    public List<String> formatFullSchedule() {
         List<ScheduleEntry> entries = schedule.findAll();
 
         Map<Integer, Course> courseLookup = new HashMap<>();
@@ -77,12 +79,14 @@ public class ScheduleService {
             courseLookup.put(c.getId(), c);
         }
 
+        List<String> lines = new ArrayList<>();
         for (ScheduleEntry e : entries) {
             Course c = courseLookup.get(e.getCourseId());
             String courseLabel = (c == null) ? "?" : c.getCode() + " " + c.getName();
-            System.out.println(e.getWeekDay() + " " + e.getStartHour() + "-" + e.getEndHour()
+            lines.add(e.getWeekDay() + " " + e.getStartHour() + "-" + e.getEndHour()
                     + " | room #" + e.getClassroomId() + " | " + courseLabel);
         }
         audit.log("PRINT_FULL_SCHEDULE");
+        return lines;
     }
 }
