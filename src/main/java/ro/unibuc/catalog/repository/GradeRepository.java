@@ -38,6 +38,22 @@ public class GradeRepository {
         }
     }
 
+    public List<Grade> findAll() {
+        List<Grade> list = new ArrayList<>();
+        String sql = "SELECT * FROM grades ORDER BY student_id, course_id";
+        try (Connection conn = DatabaseConnection.get();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
     public List<Grade> findByStudent(int studentId) {
         List<Grade> list = new ArrayList<>();
         String sql = "SELECT * FROM grades WHERE student_id = ? ORDER BY course_id";
