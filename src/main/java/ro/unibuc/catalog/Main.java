@@ -24,6 +24,7 @@ import ro.unibuc.catalog.service.DepartmentService;
 import ro.unibuc.catalog.service.EnrollmentService;
 import ro.unibuc.catalog.service.GradeService;
 import ro.unibuc.catalog.service.ProfessorService;
+import ro.unibuc.catalog.service.ReportService;
 import ro.unibuc.catalog.service.ScheduleService;
 import ro.unibuc.catalog.service.StudentService;
 
@@ -44,6 +45,7 @@ public class Main {
     private final GradeService gradeService;
     private final AttendanceService attendanceService;
     private final ScheduleService scheduleService;
+    private final ReportService reportService;
 
     public Main() {
         var departmentRepo = new DepartmentRepository();
@@ -67,6 +69,7 @@ public class Main {
         this.gradeService = new GradeService(gradeRepo, studentRepo, courseRepo, enrollmentRepo, audit);
         this.attendanceService = new AttendanceService(attendanceRepo, studentRepo, courseRepo, enrollmentRepo, audit);
         this.scheduleService = new ScheduleService(scheduleRepo, courseRepo, classroomRepo, audit);
+        this.reportService = new ReportService(studentRepo, courseRepo, gradeRepo, departmentRepo, audit);
     }
 
     public static void main(String[] args) {
@@ -136,6 +139,13 @@ public class Main {
         System.out.println("32. Schedule for a course");
         System.out.println("33. Full schedule");
         System.out.println("34. Delete schedule entry");
+        System.out.println("-- Reports (Streams) --");
+        System.out.println("35. Students by status");
+        System.out.println("36. Courses per department");
+        System.out.println("37. Average credits by course type");
+        System.out.println("38. Courses without a professor");
+        System.out.println("39. Overall grade average");
+        System.out.println("40. Top students by weighted average");
         System.out.println(" 0. Exit");
     }
 
@@ -175,6 +185,12 @@ public class Main {
             case 32 -> viewScheduleByCourse();
             case 33 -> scheduleService.printFullSchedule();
             case 34 -> deleteScheduleEntry();
+            case 35 -> reportStudentsByStatus();
+            case 36 -> reportCoursesPerDepartment();
+            case 37 -> reportAverageCreditsByType();
+            case 38 -> reportCoursesWithoutProfessor();
+            case 39 -> reportOverallAverage();
+            case 40 -> reportTopStudents();
             default -> System.out.println("Invalid option.");
         }
     }
@@ -418,6 +434,55 @@ public class Main {
         int id = readInt("Schedule entry id: ");
         scheduleService.delete(id);
         System.out.println("Deleted.");
+    }
+
+    // ------ Reports (Streams API) ------
+
+    private void reportStudentsByStatus() {
+        System.out.println("Students by status:");
+        reportService.studentCountByStatus()
+                .forEach((status, count) -> System.out.println("  " + status + ": " + count));
+    }
+
+    private void reportCoursesPerDepartment() {
+        System.out.println("Courses per department:");
+        reportService.coursesPerDepartment()
+                .forEach((code, count) -> System.out.println("  " + code + ": " + count));
+    }
+
+    private void reportAverageCreditsByType() {
+        System.out.println("Average credits by course type:");
+        reportService.averageCreditsByCourseType()
+                .forEach((type, avg) -> System.out.printf("  %s: %.2f%n", type, avg));
+    }
+
+    private void reportCoursesWithoutProfessor() {
+        var list = reportService.coursesWithoutProfessor();
+        if (list.isEmpty()) {
+            System.out.println("All courses have a professor assigned.");
+            return;
+        }
+        System.out.println("Courses without a professor:");
+        list.forEach(c -> System.out.println("  " + c.printDetails()));
+    }
+
+    private void reportOverallAverage() {
+        System.out.printf("Overall grade average: %.2f%n", reportService.overallGradeAverage());
+    }
+
+    private void reportTopStudents() {
+        int limit = readInt("How many students: ");
+        var top = reportService.topStudentsByAverage(limit);
+        if (top.isEmpty()) {
+            System.out.println("No grades recorded yet.");
+            return;
+        }
+        System.out.println("Top students by weighted average:");
+        int rank = 1;
+        for (var entry : top) {
+            System.out.printf("  %d. %s - %.2f%n",
+                    rank++, entry.student().getFullName(), entry.weightedAverage());
+        }
     }
 
     // ------ helpers I/O ------
