@@ -5,6 +5,7 @@ target/
 .DS_Store
 
 audit.csv
+exports/
 
 *.class
 *.log

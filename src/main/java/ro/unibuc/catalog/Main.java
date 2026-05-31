@@ -22,6 +22,7 @@ import ro.unibuc.catalog.service.ClassroomService;
 import ro.unibuc.catalog.service.CourseService;
 import ro.unibuc.catalog.service.DepartmentService;
 import ro.unibuc.catalog.service.EnrollmentService;
+import ro.unibuc.catalog.service.ExportService;
 import ro.unibuc.catalog.service.GradeService;
 import ro.unibuc.catalog.service.ProfessorService;
 import ro.unibuc.catalog.service.ReportService;
@@ -46,6 +47,7 @@ public class Main {
     private final AttendanceService attendanceService;
     private final ScheduleService scheduleService;
     private final ReportService reportService;
+    private final ExportService exportService;
 
     public Main() {
         var departmentRepo = new DepartmentRepository();
@@ -70,6 +72,7 @@ public class Main {
         this.attendanceService = new AttendanceService(attendanceRepo, studentRepo, courseRepo, enrollmentRepo, audit);
         this.scheduleService = new ScheduleService(scheduleRepo, courseRepo, classroomRepo, audit);
         this.reportService = new ReportService(studentRepo, courseRepo, gradeRepo, departmentRepo, audit);
+        this.exportService = new ExportService(studentRepo, reportService, audit);
     }
 
     public static void main(String[] args) {
@@ -146,6 +149,9 @@ public class Main {
         System.out.println("38. Courses without a professor");
         System.out.println("39. Overall grade average");
         System.out.println("40. Top students by weighted average");
+        System.out.println("-- Export --");
+        System.out.println("41. Export students to CSV");
+        System.out.println("42. Export statistics to JSON");
         System.out.println(" 0. Exit");
     }
 
@@ -191,6 +197,8 @@ public class Main {
             case 38 -> reportCoursesWithoutProfessor();
             case 39 -> reportOverallAverage();
             case 40 -> reportTopStudents();
+            case 41 -> exportStudentsCsv();
+            case 42 -> exportStatisticsJson();
             default -> System.out.println("Invalid option.");
         }
     }
@@ -483,6 +491,18 @@ public class Main {
             System.out.printf("  %d. %s - %.2f%n",
                     rank++, entry.student().getFullName(), entry.weightedAverage());
         }
+    }
+
+    // ------ Export ------
+
+    private void exportStudentsCsv() {
+        var file = exportService.exportStudentsToCsv();
+        System.out.println("Students exported to " + file.toAbsolutePath());
+    }
+
+    private void exportStatisticsJson() {
+        var file = exportService.exportStatisticsToJson();
+        System.out.println("Statistics exported to " + file.toAbsolutePath());
     }
 
     // ------ helpers I/O ------
